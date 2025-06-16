@@ -1,0 +1,47 @@
+# Updates the stable docs in v1 version
+name: update-stable-docs
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  release:
+    types: [published]
+
+# Sets permissions of the GITHUB_TOKEN to allow updates to the repository
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./website
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+
+      - name: Installation
+        run: npm ci
+
+        # Required until docs:version allows overwriting a version
+      - name: Clear old Stable docs
+        run: |
+          jq 'del(.[] | select(. == "Stable"))' ./versions.json > ./versions.json.tmp && mv versions.json.tmp versions.json
+          rm -rf ./versioned_docs/version-Stable
+          rm ./versioned_sidebars/version-Stable-sidebars.json
+
+      - name: Create Stable docs
+        run: npm run docusaurus -- docs:version Stable
+
+      - name: Create PR
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
+        with:
+          title: Update maester.dev Stable docs

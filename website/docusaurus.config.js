@@ -61,6 +61,12 @@ const config = {
         docs: {
           sidebarPath: "./sidebars.js",
           editUrl: "https://github.com/maester365/maester/tree/main/website",
+          editCurrentVersion: true,
+          // lastVersion: "Stable", // Already defaults to latest version. Can't reference it explicitly as it breaks update-stable-docs workflow
+          versions: {
+            current: { label: "Preview 🚧", noIndex: true },
+            // Don't configure Stable here. Same as above
+          }
         },
         blog: {
           blogSidebarTitle: 'All posts',
@@ -111,6 +117,10 @@ const config = {
             label: "Commands",
           },
           { to: 'blog', label: 'Blog', position: 'left' },
+          {
+            type: 'docsVersionDropdown',
+            position: 'right',
+          },
           {
             "aria-label": "GitHub Repository",
             className: "navbar--github-link",
